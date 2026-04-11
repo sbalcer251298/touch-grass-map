@@ -86,3 +86,30 @@
   border: 2px solid #81c784;
   box-shadow: 0 0 12px rgba(76, 175, 80, 0.6);
 }
+.authBox {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 9999;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.authBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #4caf50;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.authText {
+  color: #fff;
+  font-size: 13px;
+}

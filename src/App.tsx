@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./App.css";
@@ -20,6 +21,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [countToday, setCountToday] = useState(0);
   const [errorText, setErrorText] = useState("");
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
@@ -39,6 +41,20 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const loadTouches = async () => {
     const { data, error } = await supabase
       .from("touches")
@@ -55,10 +71,13 @@ function App() {
   };
 
   const loadCountToday = async () => {
+    const utcStart = new Date();
+    utcStart.setUTCHours(0, 0, 0, 0);
+
     const { count, error } = await supabase
       .from("touches")
       .select("*", { count: "exact", head: true })
-      .gte("created_at", new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString());
+      .gte("created_at", utcStart.toISOString());
 
     if (!error && typeof count === "number") {
       setCountToday(count);
@@ -105,8 +124,31 @@ function App() {
     });
   }, [touches]);
 
+  const handleGoogleSignIn = async () => {
+    setErrorText("");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      setErrorText("Ошибка входа через Google");
+    }
+  };
+
+  const handleSignOut = async () => {
+    setErrorText("");
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setErrorText("Ошибка выхода");
+    }
+  };
+
   const handleTouchGrass = async () => {
     setErrorText("");
+
     if (!navigator.geolocation) {
       setErrorText("Геолокация не поддерживается браузером");
       return;
@@ -121,34 +163,33 @@ function App() {
           const lng = Number(position.coords.longitude.toFixed(2));
 
           const deviceIdKey = "touch_grass_device_id";
-let deviceId = localStorage.getItem(deviceIdKey);
+          let deviceId = localStorage.getItem(deviceIdKey);
 
-if (!deviceId) {
-  deviceId = crypto.randomUUID();
-  localStorage.setItem(deviceIdKey, deviceId);
-}
+          if (!deviceId) {
+            deviceId = crypto.randomUUID();
+            localStorage.setItem(deviceIdKey, deviceId);
+          }
 
-const { error } = await supabase.rpc("touch_grass", {
-  p_lat: lat,
-  p_lng: lng,
-  p_device_id: deviceId,
-  p_is_private: false,
-  p_source: "web",
-  p_client_ts: new Date().toISOString(),
-});
+          const { error } = await supabase.rpc("touch_grass", {
+            p_lat: lat,
+            p_lng: lng,
+            p_device_id: deviceId,
+            p_is_private: false,
+            p_source: "web",
+            p_client_ts: new Date().toISOString(),
+          });
 
           if (error) {
-  const msg = (error.message || "").toLowerCase();
-
-  if (msg.includes("too_many_requests")) {
-    setErrorText("Слишком часто. Попробуй снова через 5 минут.");
-  } else {
-    setErrorText("Touch сохранен, но есть предупреждение. Обнови страницу.");
-  }
-} else {
-  setErrorText("");
-  localStorage.setItem("lastTouchAt", new Date().toISOString());
-}
+            const msg = (error.message || "").toLowerCase();
+            if (msg.includes("too_many_requests")) {
+              setErrorText("Слишком часто. Попробуй снова через 5 минут.");
+            } else {
+              setErrorText("Не удалось сохранить touch");
+            }
+          } else {
+            setErrorText("");
+            localStorage.setItem("lastTouchAt", new Date().toISOString());
+          }
         } catch {
           setErrorText("Ошибка при сохранении");
         } finally {
@@ -166,6 +207,21 @@ const { error } = await supabase.rpc("touch_grass", {
   return (
     <div className="app">
       <div ref={mapContainerRef} className="map" />
+
+      <div className="authBox">
+        {session?.user ? (
+          <>
+            <span className="authText">{session.user.email}</span>
+            <button className="authBtn" onClick={handleSignOut}>
+              Sign out
+            </button>
+          </>
+        ) : (
+          <button className="authBtn" onClick={handleGoogleSignIn}>
+            Sign in with Google
+          </button>
+        )}
+      </div>
 
       <div className="topRight">🌿 {countToday} touches today worldwide</div>
 
