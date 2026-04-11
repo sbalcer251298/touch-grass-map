@@ -5,10 +5,12 @@
   margin: 0;
   padding: 0;
 }
+
 .app {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
+  min-height: 100svh;
   overflow: hidden;
   background: #1a1a1a;
 }
@@ -18,63 +20,87 @@
   inset: 0;
 }
 
+.authBox {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 10px);
+  left: 10px;
+  z-index: 9999;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: calc(100vw - 20px);
+  background: rgba(0, 0, 0, 0.75);
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.authText {
+  color: #fff;
+  font-size: 12px;
+  max-width: 42vw;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.authBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #4caf50;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 .topRight {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 10;
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 62px);
+  left: 10px;
+  right: 10px;
+  z-index: 9998;
+  text-align: center;
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 13px;
 }
 
 .errorBox {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  z-index: 10;
-  background: rgba(183, 28, 28, 0.9);
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 110px);
+  left: 10px;
+  right: 10px;
+  z-index: 9999;
+  background: rgba(183, 28, 28, 0.92);
   color: #fff;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-family: Arial, sans-serif;
-  max-width: 320px;
-  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
 }
 
 .touchBtn {
-  position: absolute;
+  position: fixed;
   left: 50%;
-  bottom: 24px;
   transform: translateX(-50%);
-  z-index: 10;
-  min-height: 60px;
-  min-width: 220px;
-  padding: 14px 24px;
+  bottom: calc(env(safe-area-inset-bottom) + 14px);
+  z-index: 9999;
+  min-height: 56px;
+  min-width: 210px;
+  padding: 12px 20px;
   border: none;
   border-radius: 999px;
   background: linear-gradient(135deg, #4caf50, #2e7d32);
   color: #fff;
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, filter 0.2s ease;
-}
-
-.touchBtn:hover {
-  transform: translateX(-50%) scale(1.05);
-  filter: brightness(1.05);
-}
-
-.touchBtn:active {
-  transform: translateX(-50%) scale(0.98);
 }
 
 .touchBtn:disabled {
-  opacity: 0.7;
+  opacity: 0.75;
   cursor: not-allowed;
 }
 
@@ -85,31 +111,4 @@
   background: #4caf50;
   border: 2px solid #81c784;
   box-shadow: 0 0 12px rgba(76, 175, 80, 0.6);
-}
-.authBox {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 9999;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.75);
-  padding: 10px 12px;
-  border-radius: 10px;
-}
-
-.authBtn {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  background: #4caf50;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.authText {
-  color: #fff;
-  font-size: 13px;
 }
