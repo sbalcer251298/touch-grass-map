@@ -133,17 +133,13 @@ function App() {
       },
     });
 
-    if (error) {
-      setErrorText("Ошибка входа через Google");
-    }
+    if (error) setErrorText("Ошибка входа через Google");
   };
 
   const handleSignOut = async () => {
     setErrorText("");
     const { error } = await supabase.auth.signOut();
-    if (error) {
-      setErrorText("Ошибка выхода");
-    }
+    if (error) setErrorText("Ошибка выхода");
   };
 
   const handleTouchGrass = async () => {
@@ -187,8 +183,17 @@ function App() {
               setErrorText("Не удалось сохранить touch");
             }
           } else {
+            localStorage.setItem("lastTouch", new Date().toISOString());
             setErrorText("");
-            localStorage.setItem("lastTouchAt", new Date().toISOString());
+
+            if (mapRef.current) {
+              mapRef.current.flyTo({
+                center: [lng, lat],
+                zoom: 11,
+                duration: 1500,
+                essential: true,
+              });
+            }
           }
         } catch {
           setErrorText("Ошибка при сохранении");
@@ -196,9 +201,16 @@ function App() {
           setLoading(false);
         }
       },
-      () => {
+      (geoError) => {
         setLoading(false);
-        setErrorText("Разреши геолокацию в браузере");
+
+        if (geoError.code === geoError.PERMISSION_DENIED) {
+          setErrorText("Разреши геолокацию в настройках браузера");
+        } else if (geoError.code === geoError.TIMEOUT) {
+          setErrorText("Геолокация не ответила вовремя, попробуй снова");
+        } else {
+          setErrorText("Не удалось определить местоположение");
+        }
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -228,7 +240,7 @@ function App() {
       {errorText ? <div className="errorBox">{errorText}</div> : null}
 
       <button className="touchBtn" onClick={handleTouchGrass} disabled={loading}>
-        {loading ? "Определяем геолокацию..." : "🌿 Touch Grass"}
+        {loading ? "Finding you..." : "🌿 Touch Grass"}
       </button>
     </div>
   );

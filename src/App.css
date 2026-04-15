@@ -94,7 +94,7 @@
   border-radius: 999px;
   background: linear-gradient(135deg, #4caf50, #2e7d32);
   color: #fff;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -112,13 +112,13 @@
   border: 2px solid #81c784;
   box-shadow: 0 0 12px rgba(76, 175, 80, 0.6);
 }
-/* Сдвигаем map controls ниже верхних плашек */
+
+/* map controls не пересекаются с верхними плашками */
 .map .maplibregl-ctrl-top-right {
-  top: calc(env(safe-area-inset-top) + 120px);
-  right: 10px;
+  top: calc(env(safe-area-inset-top) + 128px);
+  right: 8px;
 }
 
-/* Чуть компактнее controls на мобилке */
 .map .maplibregl-ctrl-group {
   border-radius: 10px;
   overflow: hidden;
@@ -127,11 +127,4 @@
 .map .maplibregl-ctrl button {
   width: 34px;
   height: 34px;
-}
-
-@media (max-width: 480px) {
-  .map .maplibregl-ctrl-top-right {
-    top: calc(env(safe-area-inset-top) + 128px);
-    right: 8px;
-  }
 }
